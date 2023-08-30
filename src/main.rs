@@ -1,25 +1,16 @@
-use std::net::SocketAddr;
+mod router;
+mod handlers;
 
-use axum::{
-    http::StatusCode,
-    response::IntoResponse,
-    routing::{get, post},
-    Json, Router,
-};
+use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new()
-        .route("/", get(root));
+    let router = router::router();
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
     axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+        .serve(router.into_make_service())
         .await
         .unwrap();
-}
-
-async fn root() -> &'static str {
-    "Hello, World!"
 }
