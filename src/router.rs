@@ -1,7 +1,12 @@
-use axum::{routing::get, Router};
+use std::sync::Arc;
 
-use crate::handlers::*;
+use axum::{routing::{get, post}, Router};
 
-pub fn router() -> Router {
-    Router::new().route("/", get(root))
+use crate::{handlers::*, Env};
+
+pub fn router(state: Arc<Env>) -> Router {
+    Router::new()
+        .route("/", get(root))
+        .route("/users", post(create_user))
+        .with_state(state)
 }

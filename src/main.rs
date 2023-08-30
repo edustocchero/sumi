@@ -1,12 +1,23 @@
 mod router;
 mod handlers;
+mod models;
+mod contracts;
 
 use std::error::Error;
 
 use std::net::SocketAddr;
+use std::sync::Arc;
 
 use sqlx::PgPool;
+use sqlx::Pool;
+use sqlx::Postgres;
 use sqlx::Row;
+
+pub struct Env {
+    pub db: Pool<Postgres>,
+}
+
+pub type AppState = Arc<Env>;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -22,7 +33,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let sum: i32 = res.get("sum");
     println!("{}", sum);
 
-    let router = router::router();
+    let env = Env { db: pool.clone() };
+    let state = Arc::new(env);
+        
+    let router = router::router(state);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
